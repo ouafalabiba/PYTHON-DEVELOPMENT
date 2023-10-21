@@ -1,0 +1,91 @@
+import random
+
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.hp = 100
+        self.inventory = []
+
+    def take_damage(self, damage):
+        self.hp -= damage
+
+    def heal(self, heal_amount):
+        self.hp = min(100, self.hp + heal_amount)
+
+    def add_to_inventory(self, item):
+        self.inventory.append(item)
+
+class Enemy:
+    def __init__(self, name, hp, damage):
+        self.name = name
+        self.hp = hp
+        self.damage = damage
+
+    def take_damage(self, damage):
+        self.hp -= damage
+
+class Item:
+    def __init__(self, name):
+        self.name = name
+
+class World:
+    def __init__(self):
+        self.player = None
+        self.enemies = []
+        self.items = []
+
+    def populate_world(self, player_name):
+        self.player = Player(player_name)
+        self.enemies = [Enemy("Goblin", 30, 10), Enemy("Orc", 50, 20)]
+        self.items = [Item("Potion"), Item("Sword")]
+
+    def move_player(self):
+        direction = input("Enter direction to move (N, S, E, W): ")
+        if direction in ['N', 'S', 'E', 'W']:
+            print(f"Player moves {direction}")
+        else:
+            print("Invalid direction.")
+
+    def print_player_status(self):
+        print(f"Player: {self.player.name}, HP: {self.player.hp}")
+        print(f"Inventory: {', '.join([item.name for item in self.player.inventory])}")
+
+    def explore(self):
+        print("Exploring the world...")
+        encountered_enemy = random.choice(self.enemies)
+        print(f"Encountered an enemy: {encountered_enemy.name}")
+        action = input("Do you want to fight (Y/N): ")
+        if action == 'Y':
+            self.fight(encountered_enemy)
+        else:
+            print("You run away!")
+
+    def fight(self, enemy):
+        while self.player.hp > 0 and enemy.hp > 0:
+            print(f"Player attacks {enemy.name}!")
+            enemy.take_damage(random.randint(5, 15))
+            print(f"{enemy.name} HP: {enemy.hp}")
+            if enemy.hp <= 0:
+                print(f"{enemy.name} is defeated!")
+                self.player.add_to_inventory(random.choice(self.items))
+                break
+
+            print(f"{enemy.name} attacks player!")
+            self.player.take_damage(enemy.damage)
+            print(f"Player HP: {self.player.hp}")
+            if self.player.hp <= 0:
+                print("Player is defeated!")
+                break
+
+if __name__ == "__main__":
+    world = World()
+    player_name = input("Enter player name: ")
+    world.populate_world(player_name)
+
+    while True:
+        world.print_player_status()
+        world.move_player()
+        world.explore()
+        play_again = input("Do you want to play again (Y/N): ")
+        if play_again != 'Y':
+            break
